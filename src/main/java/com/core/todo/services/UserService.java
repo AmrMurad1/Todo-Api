@@ -1,23 +1,28 @@
 package com.core.todo.services;
 import com.core.todo.dto.UserLogin;
 import com.core.todo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import com.core.todo.model.User;
 
-
+@RequiredArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
     @Override
@@ -31,41 +36,45 @@ public class UserService implements UserDetailsService {
                 .authorities(new ArrayList<>())
                 .build();
     }
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+  private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authenticationManager;
 
-    public Optional<User> GetUserById(Long id){
+  private final PasswordEncoder passwordEncoder;
+
+
+   public Optional<User> GetUserById(Long id){
         return userRepository.findById(id);
 
-
     }
-   public String RegisterNewUser(User user){
-        Optional<User> ExistingByUsername = userRepository.findByUsername(user.getUsername());
-        Optional<User> ExistingByEmail = userRepository.findByEmail(user.getEmail());
 
-        if (ExistingByUsername.isPresent())
-            return "Username already taken, choose another one";
-        if (ExistingByEmail.isPresent())
-            return "this Email already registered, choose another one";
+
+   public String addNewUser (User user){
+
+        Optional<User> existUser = userRepository.findByUsername(user.getUsername());
+        Optional<User> existEmail = userRepository.findByEmail(user.getEmail());
+
+        if (existUser.isPresent())
+            return "User already exist";
+
+        if (existEmail.isPresent())
+            return "This Email is taken";
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return "User saved successfully";
+        return "User Saved Successfully";
 
    }
-   public Map<String, String> LoginByUserName(UserLogin credentials){
+
+
+   public Map<String, String> loginByUsername(UserLogin credentials){
         String username = credentials.getUsername();
         String password =  credentials.getPassword();
 
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty())
-            throw new UsernameNotFoundException("not found");
+            throw new UsernameNotFoundException("user not found");
 
         Authentication authentication = authenticationManager.authenticate
                 (new UsernamePasswordAuthenticationToken(username,password));
@@ -76,7 +85,22 @@ public class UserService implements UserDetailsService {
 
    }
 
-   public User UpdateUser(Long id, User updateUser){
+   public User getAuthenticatedUser() {
+
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       Object principal = auth.getPrincipal();
+       String username;
+
+       if (principal instanceof UserDetails){
+           username = ((UserDetails) principal).getUsername();
+       }
+       else throw new UsernameNotFoundException("user not Authenticated");
+
+       return userRepository.findByUsername(username)
+               .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+   }
+
+   public User updateUser(Long id, User updateUser){
         User ExistingUser = userRepository.findById( id).
                 orElseThrow(() -> new UsernameNotFoundException("user not found" + id));
 
@@ -86,7 +110,15 @@ public class UserService implements UserDetailsService {
        if (updateUser.getPassword() != null && !updateUser.getPassword().isEmpty()) {
            ExistingUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
        }
+       return userRepository.save(ExistingUser);
+   }
 
+   public void deleteUser(long id) {
+       if (!userRepository.existsById(id)){
+           throw new UsernameNotFoundException("user not found");
+       }
+
+       userRepository.deleteById(id);
 
    }
 
