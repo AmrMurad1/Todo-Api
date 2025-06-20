@@ -2,6 +2,7 @@ package com.core.todo.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NonNull;
 
 @Entity
 @Table (name = "tasks")
@@ -10,7 +11,9 @@ public class Task {
     @Id
     @GeneratedValue (strategy = GenerationType.SEQUENCE)
     private long id;
+
     private String description;
+
     private String status;
 
     @ManyToOne (fetch = FetchType.LAZY)
