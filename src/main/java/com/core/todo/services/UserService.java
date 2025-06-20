@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,22 +25,11 @@ import com.core.todo.model.User;
 
 @RequiredArgsConstructor
 @Service
-public class UserService implements UserDetailsService {
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).
-                orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .authorities(new ArrayList<>())
-                .build();
-    }
+public class UserService  {
 
   private final UserRepository userRepository;
 
-  private final AuthenticationManager authenticationManager;
+  private final @Lazy AuthenticationManager authenticationManager;
 
   private final PasswordEncoder passwordEncoder;
 
