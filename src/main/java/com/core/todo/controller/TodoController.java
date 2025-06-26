@@ -1,5 +1,6 @@
 package com.core.todo.controller;
 
+import com.core.todo.dto.TaskDTO;
 import com.core.todo.exceptions.ResourceNotFoundException;
 import com.core.todo.model.Task;
 import com.core.todo.model.User;
@@ -28,7 +29,7 @@ public class TodoController {
     }
 
 
-    @GetMapping("/tasks/user/{userId}")
+    @GetMapping("/tasks")
     public ResponseEntity<?> getUserTasks(@PathVariable long userId){
         Optional<User> user = userService.GetUserById(userId);
 
@@ -40,11 +41,11 @@ public class TodoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user not found");
 
     }
-    @PostMapping("/tasks/user/{userId}")
-    public ResponseEntity<Task> createTask(@PathVariable long userId, @PathVariable Task task)
+    @PostMapping("/tasks")
+    public ResponseEntity<Task> createTask(@PathVariable long userId, @RequestBody TaskDTO taskDTO)
             throws ResourceNotFoundException{
         try {
-            Task createTask = taskService.addTask(userId, task);
+            Task createTask = taskService.addTask(userId, taskDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createTask);
         }
         catch (RuntimeException e){

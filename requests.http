@@ -1,0 +1,69 @@
+### Register a new user
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "soso",
+  "email": "soso@doe.com",
+  "password": "passwordo"
+}
+
+###
+
+### Login and get JWT token
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "soso",
+  "password": "passwordo"
+}
+
+###
+
+### 🔑 After logging in, copy the token from the response and paste it below ⬇️
+
+### Create a To-Do Item
+POST http://localhost:8080/api/v1/tasks/user/3
+Content-Type: application/json
+Authorization: Bearer  eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb3NvIiwiaWF0IjoxNzUwOTA1OTc0LCJleHAiOjE3NTA5OTIzNzR9.2n9K3p1ohxYI_x1ahnlnOMGPYBdskvqvxtH3OY7VlYQ
+
+
+{
+  "status": "still",
+  "title": "Buy groceries",
+  "description": "Buy milk, eggs, and bread"
+}
+
+###
+
+### Get tasks for user
+GET http://localhost:8080/api/v1/tasks/user/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...PUT_YOUR_TOKEN_HERE...
+
+###
+
+### Update a To-Do Item
+PUT http://localhost:8080/api/v1/tasks/1/user/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...PUT_YOUR_TOKEN_HERE...
+
+{
+  "id": "2",
+  "status": "anything",
+  "description": "Buy milk, eggs, bread, and cheese"
+}
+
+###
+
+### Delete a To-Do Item
+DELETE http://localhost:8080/api/v1/tasks/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...PUT_YOUR_TOKEN_HERE...
+
+###
+
+### Get Authenticated User Profile
+GET http://localhost:8080/api/v1/userProfile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...PUT_YOUR_TOKEN_HERE...
+
+###

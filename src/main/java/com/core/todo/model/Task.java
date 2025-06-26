@@ -11,9 +11,8 @@ public class Task {
     @Id
     @GeneratedValue (strategy = GenerationType.SEQUENCE)
     private long id;
-
+    private String title;
     private String description;
-
     private String status;
 
     @ManyToOne (fetch = FetchType.LAZY)

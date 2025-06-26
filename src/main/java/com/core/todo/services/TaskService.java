@@ -1,5 +1,6 @@
 package com.core.todo.services;
 
+import com.core.todo.dto.TaskDTO;
 import com.core.todo.exceptions.ResourceNotFoundException;
 import com.core.todo.model.Task;
 import com.core.todo.model.User;
@@ -39,16 +40,24 @@ public class TaskService {
         return task;
     }
 
-    public Task addTask(long userId, Task task){
-        Optional<User> user = userRepository.findById(userId);
+    public Task addTask(long userId, TaskDTO taskDTO) {
+        Optional<User> userOptional = userRepository.findById(userId);
 
-        if (user.isPresent()){
-            task.setUser(user.get());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            Task task = new Task();
+            task.setTitle(taskDTO.getTitle());
+            task.setStatus(taskDTO.getStatus());
+            task.setDescription(taskDTO.getDescription());
+            task.setUser(user);
+
             return taskRepository.save(task);
+        } else {
+            throw new ResourceNotFoundException("User not found: " + userId);
         }
-        else
-            throw new ResourceNotFoundException("not found" + userId);
     }
+
 
     public Task updateTask (long userId, long taskId, Task updateTaskDetails){
         Task task = taskRepository.findById(taskId)
