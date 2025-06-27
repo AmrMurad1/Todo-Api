@@ -65,6 +65,7 @@ public class TodoController {
     public ResponseEntity<?> deleteTask(@PathVariable long taskId)throws ResourceNotFoundException{
         taskService.deleteTask(taskId);
         return ResponseEntity.ok("task deleted");
+
     }
 
 
